@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/btn/0.png</file>
+        <file>img/btn/1.png</file>
+        <file>img/btn/2.png</file>
+        <file>img/btn/3.png</file>
+        <file>img/btn/4.png</file>
+        <file>img/btn/5.png</file>
+        <file>img/btn/6.png</file>
+        <file>img/btn/7.png</file>
+        <file>img/btn/8.png</file>
+        <file>img/btn/9.png</file>
+        <file>img/btn/10.png</file>
+        <file>img/btn/10-2.png</file>
+        <file>img/btn/11.png</file>
+        <file>img/btn/12.png</file>
+        <file>img/btn/13.png</file>
+        <file>img/bkg.png</file>
+        <file>img/abs.png</file>
+        <file>img/btn/sound.png</file>
+    </qresource>
+</RCC>
