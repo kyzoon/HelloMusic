@@ -68,7 +68,10 @@ void Dialog::setupUI(void)
     ui->splitter->setStretchFactor(1, 4);
 
 #if defined(Q_OS_LINUX)
-    s_settings = new QSettings("/home/kyzoon/.config.ini", QSettings::IniFormat);
+    // For Debug
+//    s_settings = new QSettings("/home/kyzoon/.config.ini", QSettings::IniFormat);
+    // For Release
+    s_settings = new QSettings(".config.ini", QSettings::IniFormat);
 #elif defined(Q_OS_WIN)
     s_settings = new QSettings("D:\\QtPorject\\build-HelloMusic-Desktop_Qt_5_8_0_MinGW_32bit-Debug\\debug\\config.ini", QSettings::IniFormat);
 #endif
