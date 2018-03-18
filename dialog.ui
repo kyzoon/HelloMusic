@@ -82,8 +82,7 @@ background-image: url(:/img/bkg.png);
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: 75 12pt &quot;微软雅黑&quot;;
-color: rgb(255, 255, 255);</string>
+       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>HelloMusic - V1.0.00</string>
@@ -300,8 +299,7 @@ border-radius: 4px;
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);
-font: 75 12pt &quot;微软雅黑&quot;;</string>
+       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>00:00</string>
@@ -578,7 +576,7 @@ background-color: rgb(207, 246, 251);
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="leftMargin">
        <number>5</number>

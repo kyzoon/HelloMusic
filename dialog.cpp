@@ -15,6 +15,14 @@ Dialog::Dialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+#ifndef QT_DEBUG
+    qDebug("");
+    qDebug("########################################");
+    qDebug("              HelloMusic");
+    qDebug("########################################");
+    qDebug("");
+#endif
+
     s_play_flag = false;
     s_rotation_flag = false;
     s_list_visible_flag = true;
@@ -63,15 +71,24 @@ Dialog::Dialog(QWidget *parent) :
 
 void Dialog::setupUI(void)
 {
+#if defined(Q_OS_LINUX)
+//    QFont font("Ubuntu", 10, QFont::Bold);
+//    ui->lTitle->setFont(font);
+//    ui->lNow->setFont(font);
+#elif defined(Q_OS_WIN)
+    QFont font("微软雅黑", 12, QFont::Blod);
+    ui->lTitle->setFont(font);
+    ui->lNow->setFont(font);
+#endif
+
     setWindowFlags(Qt::WindowCloseButtonHint);
     ui->splitter->setStretchFactor(0, 1);
     ui->splitter->setStretchFactor(1, 4);
 
 #if defined(Q_OS_LINUX)
-    // For Debug
-//    s_settings = new QSettings("/home/kyzoon/.config.ini", QSettings::IniFormat);
-    // For Release
-    s_settings = new QSettings(".config.ini", QSettings::IniFormat);
+    QString str_ini_path = QCoreApplication::applicationDirPath();
+    qDebug() << "LoadINI: " + str_ini_path + "/.config.ini";
+    s_settings = new QSettings(str_ini_path + "/.config.ini", QSettings::IniFormat);
 #elif defined(Q_OS_WIN)
     s_settings = new QSettings("D:\\QtPorject\\build-HelloMusic-Desktop_Qt_5_8_0_MinGW_32bit-Debug\\debug\\config.ini", QSettings::IniFormat);
 #endif
@@ -79,13 +96,14 @@ void Dialog::setupUI(void)
     int win_x = s_settings->value("x").toInt();
     int win_y = s_settings->value("y").toInt();
     int win_h = s_settings->value("h").toInt();
+    qDebug() << "X:" << win_x << "Y:" << win_y << "Height:" << win_h;
     s_settings->endGroup();
 
     setGeometry(win_x, win_y, 370, win_h);
 
     // Load PlayList
     s_settings->beginGroup("PlayList");
-    QString pl_path = s_settings->value("path").toString();
+    s_pl_path = s_settings->value("path").toString();
     QString pl_file_name = s_settings->value("name").toString();
     s_pl_strlist << pl_file_name;
     s_settings->endGroup();
@@ -95,9 +113,11 @@ void Dialog::setupUI(void)
 
     QDomDocument doc(pl_file_name);
 #if defined(Q_OS_LINUX)
-    QFile file(pl_path + "/" + pl_file_name + ".hmpl");
+    qDebug() << "PlayList: " + s_pl_path + "/" + pl_file_name + ".hmpl";
+    QFile file(s_pl_path + "/" + pl_file_name + ".hmpl");
 #elif defined(Q_OS_WIN)
-    QFile file(pl_path + "\\" + pl_file_name + ".hmpl");
+    qDebug() << "PlayList: " + s_pl_path + "\\" + pl_file_name + ".hmpl";
+    QFile file(s_pl_path + "\\" + pl_file_name + ".hmpl");
 #endif
     if(!file.open(QIODevice::ReadOnly))
     {
@@ -134,9 +154,9 @@ void Dialog::setupUI(void)
 #if defined(Q_OS_LINUX)
             QString file = item.attribute("file");
             file.replace("\\", "/");
-            s_playlist->addMedia(QUrl::fromLocalFile(pl_path + "/" + file));
+            s_playlist->addMedia(QUrl::fromLocalFile(s_pl_path + "/" + file));
 #elif defined(Q_OS_WIN)
-            s_playlist->addMedia(QUrl::fromLocalFile(pl_path + "\\" + item.attribute("file")));
+            s_playlist->addMedia(QUrl::fromLocalFile(s_pl_path + "\\" + item.attribute("file")));
 #endif
             // Add to ui tablelist
             s_strlist.append(QString::number(s_num) + ". " + item.attribute("title"));
@@ -145,6 +165,9 @@ void Dialog::setupUI(void)
     }
 
     s_player->setPlaylist(s_playlist);
+
+    QModelIndex qmplindex = s_pl_model->index(s_pl_model->rowCount() - 1, 0);
+    ui->lvPlayList->setCurrentIndex(qmplindex);
 
     s_model->setStringList(s_strlist);
     ui->lvList->setModel(s_model);
@@ -174,7 +197,7 @@ void Dialog::closeEvent(QCloseEvent *evt)
 
     s_settings->beginGroup("PlayList");
 #if defined(Q_OS_LINUX)
-    s_settings->setValue("path", QVariant("/media/kyzoon/Enjoy/Music"));
+//    s_settings->setValue("path", QVariant("/media/kyzoon/Other/Music"));
 #elif defined(Q_OS_WIN)
     s_settings->setValue("path", QVariant("F:\\Music"));
 #endif
@@ -346,7 +369,7 @@ void Dialog::on_pbAddSong_clicked()
     QStringList song_paths = QFileDialog::getOpenFileNames(this,
                                                           tr("添加曲目"),
 //                                                          music_path.isEmpty() ? QDir::homePath() : music_path.first(),
-                                                          "F:\\Music",
+                                                          "/media/kyzoon/Enjoy/Music",
                                                           tr("MP3 files (*.mp3);WMA files (*.wma);;All files(*.*)"));
     foreach(QString song_path, song_paths)
     {
@@ -365,14 +388,17 @@ void Dialog::on_pbAddSong_clicked()
 void Dialog::on_pbAddList_clicked()
 {
 ////    QStringList music_path = QStandardPaths::standardLocations(QStandardPaths::MusicLocation);
-//    s_pl_path = QFileDialog::getOpenFileName(this,
-//                                           tr("添加曲目"),
-////                                           music_path.isEmpty() ? QDir::homePath() : music_path.first(),
-//                                           "F:\\Music",
-//                                           tr("Play List (*.hmpl)"));
-//    s_pl_strlist << QFileInfo(s_pl_path).baseName();
-//    s_pl_model->setStringList(s_pl_strlist);
-//    ui->lvPlayList->setModel(s_pl_model);
+    s_pl_path = QFileDialog::getOpenFileName(this,
+                                           tr("添加曲目"),
+//                                           music_path.isEmpty() ? QDir::homePath() : music_path.first(),
+                                           "/media/kyzoon/Enjoy/Music",
+                                           tr("Play List (*.hmpl)"));
+    s_pl_strlist << QFileInfo(s_pl_path).baseName();
+    s_pl_model->setStringList(s_pl_strlist);
+    ui->lvPlayList->setModel(s_pl_model);
+
+    QModelIndex qmindex = s_pl_model->index(s_pl_model->rowCount() - 1, 0);
+    ui->lvPlayList->setCurrentIndex(qmindex);
 
     // Add PlayList to TableList
 }
